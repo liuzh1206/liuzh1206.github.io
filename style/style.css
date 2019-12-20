@@ -1,11 +1,44 @@
 *{
-    margin: 0px;
-    padding: 0xp;
+	margin: 0px;
+	padding: 0px;
 }
+body,html{
+	height: 100%;
+}
+#head{
+	background: black;
+	height: 8%;
+}
+.headMain{
+	width: 50%;
+	height: 100%;
+	margin: auto;
+	background: blue;
+}
+
 #main{
-    width: 1200px;
-    margin: auto;
+	width: 50%;
+	margin: auto;
+	height: 92%;
+	background: red;
 }
 .head{
-    border: 1px solid #000;
+	border: solid 1px #000;
+	height: 30px;
+}
+a{
+	text-decoration: none;
+	color: #0f0;
+}
+a:hover{
+	color: #0ff;
+}
+.box1{
+	border: none;
+	height: 2rem;
+	background: red;
+}
+.box2{
+	height: 32px;
+	background: #000;
 }
