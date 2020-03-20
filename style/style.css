@@ -6,25 +6,100 @@ body,html{
 	height: 100%;
 }
 #head{
-	background: url("../images/universe.jpeg") no-repeat;
-	background-size: 100%;
-	background-position: 0px 95%;
-	height: 150px;
+	height: 50px;
+	transition: all .4s ease;
+}
+#head:hover{
+	opacity: 0.8;
+	background: black;
 }
 .headMain{
-	width: 50%;
+	width: 70%;
 	height: 100%;
 	margin: auto;
 }
 
-#main{
-	width: 50%;
-	margin: auto;
-	height: 92%;
-	background: #fff;
-	border: solid #000 1px;
+.headMain #left{
+	float: left;
+	height: 100%;
+}
+
+.headMain #right{
+	float: right;
+	height: 100%;
+}
+.logo{
+	height: 100%;
+	width: 130px;
+	transition: all 0.4s ease;
+}
+#head:hover .logo{
+	background:white;
+}
+#right ul{
+	float: left;
+	height: 100%;
+}
+.headItem{
+	float: left;
+	position: relative;
+	list-style: none;
+	height: 100%;
+}
+.headItem:after{
+	position: absolute;
+	content: "";
+	opacity: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	width: 100%;
+	height: 2px;
+	transform: scale(0,1);
+	transition: all 0.4s ease;
+	background: white;
+}
+.headItem:hover:after{
+	opacity: 1;
+	transform: scale(1,1);
+}
+.headLink{
+	display: inline-block;
+	height: 100%;
+	padding: 0 10px 0 10px;
+	text-decoration: none;
+	height: 100%;
+	line-height: 50px;
+	color: black;
+	transition: all 0.7s ease;
+}
+#head:hover .headLink{
+	color: white;
+}
+#search{
+	float: right;
+	height: 100%;
+	width: 140px;
+	transform: scaleX(0.3);
+	transition: all 0.7s ease;
+}
+#search:hover{
+	transform: scale(1,1);
+}
+.search{
+	border: none;
+	color: #aba;
+	line-height: 50px;
+	font-size: 15px;
+	border-radius: 50px;
 }
 .head{
 	border: solid 1px #000;
 	height: 30px;
+}
+#main{
+	width: 70%;
+	margin: auto;
+	height: 92%;
+	background: blueviolet;
 }
