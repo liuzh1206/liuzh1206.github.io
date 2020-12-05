@@ -1,3 +1,3 @@
-这是我的个人博客
-==
-本人材料物理本科生一枚，对编程略感兴趣，在此记录本人学习历程
+Personal Blog description
+===
+Just recording some ideas and learning outcomes.
