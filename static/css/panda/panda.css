@@ -251,6 +251,11 @@ blockquote blockquote {
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
 }
 
+table {
+	overflow: auto;
+	display: block;
+}
+
 table thead tr {
   background-color: var(--table-thead-color);
 }
