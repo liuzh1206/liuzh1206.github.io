@@ -2083,3 +2083,13 @@ kbd {
 #vcomments .expand:after{
 	background: hsl(210deg 2% 16%);
 }
+
+a {
+	color: #a894e5;
+}
+a:visited{
+	color: #729ce7;
+}
+a:hover{
+	color: #9170f5;
+}
