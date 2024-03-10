@@ -1,0 +1,376 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>vasp编译 | lzh</title><meta name="author" content="liuzh"><meta name="copyright" content="liuzh"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#0d0d0d"><meta name="description" content="服务器中的vasp只有sol版本，在研究二维材料和一些拓扑体系时功能不全，vasp6也有一些新功能，所以找来vasp.6.4.0源码自行编译，其中插件有wannier90、dftd4、BEEF、HDF5、libxc、VTST、OPT_AXIS、VASPsol。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="vasp编译">
+<meta property="og:url" content="https://liuzh1206.github.io/2023/05/16/vasp%E7%BC%96%E8%AF%91/index.html">
+<meta property="og:site_name" content="lzh">
+<meta property="og:description" content="服务器中的vasp只有sol版本，在研究二维材料和一些拓扑体系时功能不全，vasp6也有一些新功能，所以找来vasp.6.4.0源码自行编译，其中插件有wannier90、dftd4、BEEF、HDF5、libxc、VTST、OPT_AXIS、VASPsol。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://liuzh1206.github.io/images/avatar.jpg">
+<meta property="article:published_time" content="2023-05-16T00:30:39.000Z">
+<meta property="article:modified_time" content="2024-03-10T12:44:44.811Z">
+<meta property="article:author" content="liuzh">
+<meta property="article:tag" content="编译">
+<meta property="article:tag" content="vasp">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://liuzh1206.github.io/images/avatar.jpg"><link rel="shortcut icon" href="/images/logo.svg"><link rel="canonical" href="https://liuzh1206.github.io/2023/05/16/vasp%E7%BC%96%E8%AF%91/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"你已切换为繁体中文","cht_to_chs":"你已切换为简体中文","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"bottom-left"},
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'vasp编译',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-03-10 20:44:44'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.1.1"><style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>(()=>{
+  const $loadingBox = document.getElementById('loading-box')
+  const $body = document.body
+  const preloader = {
+    endLoading: () => {
+      $body.style.overflow = ''
+      $loadingBox.classList.add('loaded')
+    },
+    initLoading: () => {
+      $body.style.overflow = 'hidden'
+      $loadingBox.classList.remove('loaded')
+    }
+  }
+
+  preloader.initLoading()
+  window.addEventListener('load',() => { preloader.endLoading() })
+
+  if (false) {
+    document.addEventListener('pjax:send', () => { preloader.initLoading() })
+    document.addEventListener('pjax:complete', () => { preloader.endLoading() })
+  }
+})()</script><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">6</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">8</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background: black"><nav id="nav"><span id="blog-info"><a href="/" title="lzh"><img class="site-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/logo.svg"/><span class="site-name">lzh</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">vasp编译</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-05-16T00:30:39.000Z" title="发表于 2023-05-16 08:30:39">2023-05-16</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-03-10T12:44:44.811Z" title="更新于 2024-03-10 20:44:44">2024-03-10</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%BD%AF%E4%BB%B6%E7%BC%96%E8%AF%91/">软件编译</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">1k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>4分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="vasp编译"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><blockquote>
+<p>编译版本为vasp6.4.0版本</p>
+</blockquote>
+<h1>编译前准备</h1>
+<h2 id="附加包编译">附加包编译</h2>
+<blockquote>
+<p>这些包为<code>vasp</code>提供了一些附加功能，可选择其中内容编译, 不需要其中功能可直接跳到下一节<a href="#vasp%E7%BC%96%E8%AF%91">vasp编译</a></p>
+</blockquote>
+<h3 id="VTST补丁">VTST补丁</h3>
+<blockquote>
+<p>过渡态计算插件</p>
+</blockquote>
+<p><code>VTST</code>具体安装流程参考<a target="_blank" rel="noopener" href="https://theory.cm.utexas.edu/vtsttools/installation.html">官网</a></p>
+<p>从<a target="_blank" rel="noopener" href="https://theory.cm.utexas.edu/vtsttools/download.html">此处</a>下载补丁源码<code>VTST Code</code></p>
+<p>将VTST源码从<code>vtstcode-197/vtstcode6.4/</code>复制到<code>vasp</code>源码的<code>src</code>目录下</p>
+<p>并将<code>main.F</code>中</p>
+<figure class="highlight sas"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CALL</span> CHAIN_FORCE(T_INFO<span class="title function_">%NIONS</span>,DYN<span class="title function_">%POSION</span>,TOTEN,TIFOR, &amp;</span><br><span class="line">     LATT_CUR<span class="title function_">%A</span>,LATT_CUR<span class="title function_">%B</span>,IO<span class="title function_">%IU6</span>)</span><br></pre></td></tr></table></figure>
+<p>替换为</p>
+<figure class="highlight sas"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CALL</span> CHAIN_FORCE(T_INFO<span class="title function_">%NIONS</span>,DYN<span class="title function_">%POSION</span>,TOTEN,TIFOR, &amp;</span><br><span class="line">     TSIF,LATT_CUR<span class="title function_">%A</span>,LATT_CUR<span class="title function_">%B</span>,IO<span class="title function_">%IU6</span>)</span><br></pre></td></tr></table></figure>
+<p>将</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">IF (LCHAIN) CALL <span class="built_in">chain_init</span>( T_INFO, IO)</span><br></pre></td></tr></table></figure>
+<p>替换为</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CALL <span class="built_in">chain_init</span>( T_INFO, IO)</span><br></pre></td></tr></table></figure>
+<p>接下来修改<code>vasp</code>源码目录<code>src</code>中<code>.objects</code>文件，在其<code>chain.o</code>前加以下内容</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">bfgs<span class="selector-class">.o</span> dynmat<span class="selector-class">.o</span> instanton<span class="selector-class">.o</span> lbfgs<span class="selector-class">.o</span> sd<span class="selector-class">.o</span> cg<span class="selector-class">.o</span> dimer<span class="selector-class">.o</span> bbm<span class="selector-class">.o</span> \</span><br><span class="line">fire<span class="selector-class">.o</span> lanczos<span class="selector-class">.o</span> neb<span class="selector-class">.o</span> qm<span class="selector-class">.o</span> \</span><br><span class="line">pyamff_fortran<span class="comment">/*.o ml_pyamff.o \</span></span><br><span class="line"><span class="comment">opt.o \</span></span><br></pre></td></tr></table></figure>
+<p>之后修改<code>src</code>目录下<code>makefile</code></p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LIB= lib parser pyamff_fortran</span><br></pre></td></tr></table></figure>
+<p>如果编译多线程版本需要修改如下</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">dependencies: sources libs</span></span><br></pre></td></tr></table></figure>
+<h3 id="OPT-AXIS补丁"><code>OPT_AXIS</code>补丁</h3>
+<blockquote>
+<p>结构优化固定基矢，二维材料必备</p>
+</blockquote>
+<p>去<code>OPT_AXIS</code>的<a target="_blank" rel="noopener" href="https://github.com/Chengcheng-Xiao/VASP_OPT_AXIS">github管网</a>下载源码</p>
+<p>从<code>fixing_stress_tensor</code>路径下将<code>stress_relax_finner.patch</code>复制到<code>vasp</code>路径下并执行</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">patch -p0 &lt; stress_relax_finner.patch</span><br></pre></td></tr></table></figure>
+<p>打补丁</p>
+<h3 id="VASPsol补丁"><code>VASPsol</code>补丁</h3>
+<p>去<code>VASPsol</code>的<a href="https://link.zhihu.com/?target=https%3A//github.com/henniggroup/VASPsol">github官网</a>下载源码并将其中<code>src</code>目录下的<code>solvation.F</code>复制到<code>vasp.6.4.0/src</code>源码中</p>
+<p>从<a target="_blank" rel="noopener" href="https://github.com/henniggroup/VASPsol/issues/64">这个issues</a>中下载<code>vasp6.3</code>版本的补丁并使用命令</p>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">patch</span> -p0 &lt; VASPsol_VASP630.<span class="keyword">patch</span></span><br></pre></td></tr></table></figure>
+<p>加载补丁</p>
+<h3 id="支持wannier90、dftd4、BEEF、HDF5、libxc的vasp编译">支持wannier90、dftd4、BEEF、HDF5、libxc的vasp编译</h3>
+<p>编译这些库比较简单，这里就不一一列举，大多只要在与<code>vasp</code>相同的环境下使用</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">./configure --prefix=&lt;install path&gt;</span><br><span class="line">make all</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+<p>即可，这些库包括<code>wannier90</code>及<code>lib</code>库<code>dftd4</code>及<code>lib</code>库<code>BEEF</code>及<code>lib</code>库<code>HEF5</code>及<code>lib</code>库<code>libxc</code>
+，它们的功能可去官网自行了解。编译好上述软件后只需在<code>vasp</code>源码根目录下的<code>arch</code>目录中复制<code>makefile.include.intel</code>到根目录中并命名<code>makefile.include</code>然后配置其路径即可，如果对<code>openmp</code>有了解可选择<code>makefile.include.intel_omp</code>作为<code>makefile.include</code></p>
+<p>将下面内容中选择你需要的部分复制进<code>makefile.include</code>末尾并修改对应的路径即可</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># HDF5-support (optional but strongly recommended)</span></span><br><span class="line">CPP_OPTIONS+= -DVASP_HDF5</span><br><span class="line">HDF5_ROOT  ?= /path/to/your/hdf5</span><br><span class="line">LLIBS      += -L<span class="variable">$(HDF5_ROOT)</span>/lib -lhdf5_fortran</span><br><span class="line">INCS       += -I<span class="variable">$(HDF5_ROOT)</span>/<span class="keyword">include</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># For the VASP-2-Wannier90 interface (optional)</span></span><br><span class="line">CPP_OPTIONS    += -DVASP2WANNIER90</span><br><span class="line">WANNIER90_ROOT ?= /path/to/your/wannier90-3.1.0</span><br><span class="line">LLIBS           += -L<span class="variable">$(WANNIER90_ROOT)</span>/lib -lwannier</span><br><span class="line"></span><br><span class="line"><span class="comment"># For the dft-d4 interface (optional)</span></span><br><span class="line">CPP_OPTIONS += -DDFTD4</span><br><span class="line">LLIBS       += <span class="variable">$(<span class="built_in">shell</span> pkg-config --libs dftd4)</span></span><br><span class="line">INCS        += <span class="variable">$(<span class="built_in">shell</span> pkg-config --cflags dftd4)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># For the beef vdw interface (optional)</span></span><br><span class="line">CPP_OPTIONS += -Dlibbeef</span><br><span class="line">LLIBS       += -L/path/to/your/libbeef/lib/lib -lbeef</span><br><span class="line"></span><br><span class="line"><span class="comment"># For the libxc interface (optional)</span></span><br><span class="line">CPP_OPTIONS += -DUSELIBXC</span><br><span class="line">LIBXC_ROOT  ?= /path/to/your/libxc/installation</span><br><span class="line">LLIBS       += -L<span class="variable">$(LIBXC_ROOT)</span>/lib -lxcf03 -lxc</span><br><span class="line">INCS        += -I<span class="variable">$(LIBXC_ROOT)</span>/<span class="keyword">include</span></span><br></pre></td></tr></table></figure>
+<h2 id="vasp编译">vasp编译</h2>
+<p>修改<code>makefile.include</code>中<code>mkl</code>路径并将<code>FCL</code>后的<code>qmkl</code>改为<code>mkl</code>，最终修改结果如下</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">FCL        += -mkl=sequential</span><br><span class="line">MKLROOT    ?= /path/to/your/intel/mkl/dir</span><br></pre></td></tr></table></figure>
+<p>修改编译器参数如下</p>
+<figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">VASP_TARGET_CPU ?= -xHOST -heap-<span class="built_in">array</span>s <span class="number">64</span></span><br></pre></td></tr></table></figure>
+<p>如果报错不支持<code>SSE</code>指令集则在最后一行加如下内容打开<code>SSE</code>支持</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">CXXFLAGS</span> += -xSSE4.<span class="number">2</span></span><br><span class="line"><span class="attribute">CFLAGS</span> += -xSSE4.<span class="number">2</span></span><br><span class="line"><span class="attribute">FFLAGS</span> += -xSSE4.<span class="number">2</span></span><br></pre></td></tr></table></figure>
+<p>最后使用<code>make DEPS=1 -jN all</code>命令编译三个版本的<code>vasp</code>，其中<code>N</code>为使用核数</p>
+<p>完整的<code>makefile.include</code>文件如下</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Default precompiler options</span></span><br><span class="line">CPP_OPTIONS = -DHOST=\<span class="string">&quot;LinuxIFC\&quot; \</span></span><br><span class="line"><span class="string">              -DMPI -DMPI_BLOCK=8000 -Duse_collective \</span></span><br><span class="line"><span class="string">              -DscaLAPACK \</span></span><br><span class="line"><span class="string">              -DCACHE_SIZE=4000 \</span></span><br><span class="line"><span class="string">              -Davoidalloc \</span></span><br><span class="line"><span class="string">              -Dvasp6 \</span></span><br><span class="line"><span class="string">              -Duse_bse_te \</span></span><br><span class="line"><span class="string">              -Dtbdyn \</span></span><br><span class="line"><span class="string">              -Dfock_dblbuf</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">CPP         = fpp -f_com=no -free -w0  <span class="variable">$*</span><span class="variable">$(FUFFIX)</span> <span class="variable">$*</span><span class="variable">$(SUFFIX)</span> <span class="variable">$(CPP_OPTIONS)</span></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">FC          = mpiifort</span></span><br><span class="line"><span class="string">FCL         = mpiifort</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">FREE        = -free -names lowercase</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">FFLAGS      = -assume byterecl -w</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">OFLAG       = -O2</span></span><br><span class="line"><span class="string">OFLAG_IN    = <span class="variable">$(OFLAG)</span></span></span><br><span class="line"><span class="string">DEBUG       = -O0</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">OBJECTS     = fftmpiw.o fftmpi_map.o fftw3d.o fft3dlib.o</span></span><br><span class="line"><span class="string">OBJECTS_O1 += fftw3d.o fftmpi.o fftmpiw.o</span></span><br><span class="line"><span class="string">OBJECTS_O2 += fft3dlib.o</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># For what used to be vasp.5.lib</span></span><br><span class="line"><span class="string">CPP_LIB     = <span class="variable">$(CPP)</span></span></span><br><span class="line"><span class="string">FC_LIB      = <span class="variable">$(FC)</span></span></span><br><span class="line"><span class="string">CC_LIB      = icc</span></span><br><span class="line"><span class="string">CFLAGS_LIB  = -O</span></span><br><span class="line"><span class="string">FFLAGS_LIB  = -O1</span></span><br><span class="line"><span class="string">FREE_LIB    = <span class="variable">$(FREE)</span></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">OBJECTS_LIB = linpack_double.o</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># For the parser library</span></span><br><span class="line"><span class="string">CXX_PARS    = icpc</span></span><br><span class="line"><span class="string">LLIBS       = -lstdc++</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">##</span></span><br><span class="line"><span class="string">## Customize as of this point! Of course you may change the preceding</span></span><br><span class="line"><span class="string">## part of this file as well if you like, but it should rarely be</span></span><br><span class="line"><span class="string">## necessary ...</span></span><br><span class="line"><span class="string">##</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># When compiling on the target machine itself, change this to the</span></span><br><span class="line"><span class="string"># relevant target when cross-compiling for another architecture</span></span><br><span class="line"><span class="string">VASP_TARGET_CPU ?= -xHOST -heap-arrays 64</span></span><br><span class="line"><span class="string">FFLAGS     += <span class="variable">$(VASP_TARGET_CPU)</span></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># Intel MKL (FFTW, BLAS, LAPACK, and scaLAPACK)</span></span><br><span class="line"><span class="string"># (Note: for Intel Parallel Studio&#x27;s MKL use -mkl instead of -qmkl)</span></span><br><span class="line"><span class="string">FCL        += -mkl=sequential</span></span><br><span class="line"><span class="string">MKLROOT    ?= /path/to/your/intel/mkl/dir</span></span><br><span class="line"><span class="string">LLIBS      += -L<span class="variable">$(MKLROOT)</span>/lib/intel64 -lmkl_scalapack_lp64 -lmkl_blacs_intelmpi_lp64</span></span><br><span class="line"><span class="string">INCS        =-I<span class="variable">$(MKLROOT)</span>/include/fftw</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># HDF5-support (optional but strongly recommended)</span></span><br><span class="line"><span class="string">CPP_OPTIONS+= -DVASP_HDF5</span></span><br><span class="line"><span class="string">HDF5_ROOT  ?= /path/to/your/hdf5</span></span><br><span class="line"><span class="string">LLIBS      += -L<span class="variable">$(HDF5_ROOT)</span>/lib -lhdf5_fortran</span></span><br><span class="line"><span class="string">INCS       += -I<span class="variable">$(HDF5_ROOT)</span>/include</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># For the VASP-2-Wannier90 interface (optional)</span></span><br><span class="line"><span class="string">CPP_OPTIONS    += -DVASP2WANNIER90</span></span><br><span class="line"><span class="string">WANNIER90_ROOT ?= /path/to/your/wannier90-3.1.0</span></span><br><span class="line"><span class="string">LLIBS           += -L<span class="variable">$(WANNIER90_ROOT)</span>/lib -lwannier</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># For the dft-d4 interface (optional)</span></span><br><span class="line"><span class="string">CPP_OPTIONS += -DDFTD4</span></span><br><span class="line"><span class="string">LLIBS       += $(shell pkg-config --libs dftd4)</span></span><br><span class="line"><span class="string">INCS        += $(shell pkg-config --cflags dftd4)</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># For the beef vdw interface (optional)</span></span><br><span class="line"><span class="string">CPP_OPTIONS += -Dlibbeef</span></span><br><span class="line"><span class="string">LLIBS       += -L/path/to/your/libbeef/lib/lib -lbeef</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># For the libxc interface (optional)</span></span><br><span class="line"><span class="string">CPP_OPTIONS += -DUSELIBXC</span></span><br><span class="line"><span class="string">LIBXC_ROOT  ?= /path/to/your/libxc/installation</span></span><br><span class="line"><span class="string">LLIBS       += -L<span class="variable">$(LIBXC_ROOT)</span>/lib -lxcf03 -lxc</span></span><br><span class="line"><span class="string">INCS        += -I<span class="variable">$(LIBXC_ROOT)</span>/include</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># For the VASPsol interface (optional)</span></span><br><span class="line"><span class="string">CPP_OPTIONS += -Dsol_compat</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">CXXFLAGS += -xSSE4.2</span></span><br><span class="line"><span class="string">CFLAGS += -xSSE4.2</span></span><br><span class="line"><span class="string">FFLAGS += -xSSE4.2</span></span><br></pre></td></tr></table></figure>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://liuzh1206.github.io">liuzh</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://liuzh1206.github.io/2023/05/16/vasp%E7%BC%96%E8%AF%91/">https://liuzh1206.github.io/2023/05/16/vasp%E7%BC%96%E8%AF%91/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://liuzh1206.github.io" target="_blank">lzh</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E7%BC%96%E8%AF%91/">编译</a><a class="post-meta__tags" href="/tags/vasp/">vasp</a></div><div class="post_share"><div class="social-share" data-image="/images/avatar.jpg" data-sites="wechat,weibo,qq,facebook,twitter"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2023/05/20/wannier90/" title="wannier90"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">wannier90</div></div></a></div><div class="next-post pull-right"><a href="/2023/04/18/C4D%E5%BB%BA%E6%A8%A1%E5%8F%8A%E4%BC%98%E5%8C%96/" title="C4D建模及优化"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">C4D建模及优化</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2022/12/25/vasp%E8%AE%A1%E7%AE%97%E7%AC%94%E8%AE%B0/" title="vasp计算笔记"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-12-25</div><div class="title">vasp计算笔记</div></div></a></div></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">liuzh</div><div class="author-info__description">个人博客，写一些日常学习笔记</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">6</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">8</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/liuzh1206"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/liuzh1206" target="_blank" title="Github"><i class="fab fa-github" style="color: #666666;"></i></a><a class="social-icon" href="mailto:2311531808@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">本人很懒，更新随缘</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">编译前准备</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%99%84%E5%8A%A0%E5%8C%85%E7%BC%96%E8%AF%91"><span class="toc-number">1.1.</span> <span class="toc-text">附加包编译</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#VTST%E8%A1%A5%E4%B8%81"><span class="toc-number">1.1.1.</span> <span class="toc-text">VTST补丁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#OPT-AXIS%E8%A1%A5%E4%B8%81"><span class="toc-number">1.1.2.</span> <span class="toc-text">OPT_AXIS补丁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#VASPsol%E8%A1%A5%E4%B8%81"><span class="toc-number">1.1.3.</span> <span class="toc-text">VASPsol补丁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%94%AF%E6%8C%81wannier90%E3%80%81dftd4%E3%80%81BEEF%E3%80%81HDF5%E3%80%81libxc%E7%9A%84vasp%E7%BC%96%E8%AF%91"><span class="toc-number">1.1.4.</span> <span class="toc-text">支持wannier90、dftd4、BEEF、HDF5、libxc的vasp编译</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#vasp%E7%BC%96%E8%AF%91"><span class="toc-number">1.2.</span> <span class="toc-text">vasp编译</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/12/17/%E5%87%9D%E8%81%9A%E6%80%81%E6%8B%93%E6%89%91/" title="凝聚态拓扑">凝聚态拓扑</a><time datetime="2023-12-17T10:15:39.000Z" title="发表于 2023-12-17 18:15:39">2023-12-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/12/08/%E5%AF%B9%E6%98%93%E5%85%B3%E7%B3%BB/" title="对易关系">对易关系</a><time datetime="2023-12-08T09:29:51.000Z" title="发表于 2023-12-08 17:29:51">2023-12-08</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/05/20/wannier90/" title="wannier90">wannier90</a><time datetime="2023-05-20T12:37:24.000Z" title="发表于 2023-05-20 20:37:24">2023-05-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/05/16/vasp%E7%BC%96%E8%AF%91/" title="vasp编译">vasp编译</a><time datetime="2023-05-16T00:30:39.000Z" title="发表于 2023-05-16 08:30:39">2023-05-16</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/04/18/C4D%E5%BB%BA%E6%A8%A1%E5%8F%8A%E4%BC%98%E5%8C%96/" title="C4D建模及优化">C4D建模及优化</a><time datetime="2023-04-18T13:57:33.000Z" title="发表于 2023-04-18 21:57:33">2023-04-18</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2024 By liuzh</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.jsdelivr.net/npm/pangu/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, '']
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.min.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script><script>(() => {
+  const abcjsInit = () => {
+    const abcjsFn = () => {
+      document.querySelectorAll(".abc-music-sheet").forEach(ele => {
+        ABCJS.renderAbc(ele, ele.innerHTML, {responsive: 'resize'})
+      })
+    }
+    
+    typeof ABCJS === 'object' ? abcjsFn()
+      : getScript('https://cdn.jsdelivr.net/npm/abcjs/dist/abcjs-basic-min.min.js').then(abcjsFn)
+  }
+
+  window.pjax ? abcjsInit() : window.addEventListener('load', abcjsInit)
+})()</script><script>(() => {
+  const initGitalk = () => {
+    const gitalk = new Gitalk(Object.assign({
+      clientID: '6722ced34ec5ae97f5e6',
+      clientSecret: 'cd6cc422451705d688f161abe9271b47f448e9ae',
+      repo: 'liuzh1206.github.io',
+      owner: 'liuzh1206',
+      admin: ['liuzh1206'],
+      id: 'b71c90adf7f80795c0a6520d338b3fc7',
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  const loadGitalk = async() => {
+    if (typeof Gitalk === 'function') initGitalk()
+    else {
+      await getCSS('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css')
+      await getScript('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js')
+      initGitalk()
+    }
+  }
+  
+  const commentCount = n => {
+    const isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+    if (isCommentCount) {
+      isCommentCount.textContent= n
+    }
+  }
+
+  if ('Gitalk' === 'Gitalk' || !false) {
+    if (false) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+    else loadGitalk()
+  } else {
+    window.loadOtherComment = loadGitalk
+  }
+})()</script></div><script defer="defer" id="ribbon" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="false"></script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/metingjs/dist/Meting.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
