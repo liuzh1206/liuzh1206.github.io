@@ -4,6 +4,25 @@
   
     
     <entry>
+      <title>DFT 计算脚本</title>
+      <link href="//2024/04/14/DFT-%E8%AE%A1%E7%AE%97%E8%84%9A%E6%9C%AC/"/>
+      <url>//2024/04/14/DFT-%E8%AE%A1%E7%AE%97%E8%84%9A%E6%9C%AC/</url>
+      
+        <content type="html"><![CDATA[<p><a href="https://github.com/liuzh1206/scripts">计算脚本备份地址</a></p><p>硬盘损坏数据丢失，重新写一些并备份</p><p><code>plot_band.py</code>: <code>vaspkit</code>导出的能带数据画图脚本</p><p><code>rotate.py</code>: 创建转角异质结脚本</p><p>后面有时间也许会给出详细使用说明</p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> DFT </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>凝聚态拓扑</title>
       <link href="//2023/12/17/%E5%87%9D%E8%81%9A%E6%80%81%E6%8B%93%E6%89%91/"/>
       <url>//2023/12/17/%E5%87%9D%E8%81%9A%E6%80%81%E6%8B%93%E6%89%91/</url>
